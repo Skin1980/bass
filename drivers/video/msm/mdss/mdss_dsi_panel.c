@@ -23,7 +23,9 @@
 #include <linux/err.h>
 
 #include "mdss_dsi.h"
-
+#ifdef CONFIG_POWERSUSPEND
+#include <linux/powersuspend.h>
+#endif
 #define DT_CMD_HDR 6
 
 static int mdss_panel_height = 480;
@@ -784,7 +786,6 @@ static int mdss_dsi_panel_off(struct mdss_panel_data *pdata)
 		pr_err("%s: Invalid input data\n", __func__);
 		return -EINVAL;
 	}
-
 	pinfo = &pdata->panel_info;
 	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
@@ -817,7 +818,6 @@ static int mdss_dsi_panel_low_power_config(struct mdss_panel_data *pdata,
 		pr_err("%s: Invalid input data\n", __func__);
 		return -EINVAL;
 	}
-
 	pinfo = &pdata->panel_info;
 	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
@@ -826,11 +826,19 @@ static int mdss_dsi_panel_low_power_config(struct mdss_panel_data *pdata,
 		enable);
 
 	/* Any panel specific low power commands/config */
-	if (enable)
+	if (enable){
 		pinfo->blank_state = MDSS_PANEL_BLANK_LOW_POWER;
+		#ifdef CONFIG_POWERSUSPEND
+		set_power_suspend_state_panel_hook(POWER_SUSPEND_ACTIVE);
+		#endif
+		}
 	else
+		{
 		pinfo->blank_state = MDSS_PANEL_BLANK_UNBLANK;
-
+		#ifdef CONFIG_POWERSUSPEND
+		set_power_suspend_state_panel_hook(POWER_SUSPEND_INACTIVE);
+		#endif
+		}
 	/* Control idle mode for panel */
 	mdss_dsi_panel_set_idle_mode(pdata, enable);
 

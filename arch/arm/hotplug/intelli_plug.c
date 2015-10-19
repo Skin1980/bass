@@ -351,11 +351,12 @@ static void screen_off_limit(bool on)
 			/* save current instance */
 			l_ip_info->cur_max = policy->max;
 			policy->max = screen_off_max;
+			pr_info("\nSetting max cpu freq while screen OFF\n");
 			policy->cpuinfo.max_freq = screen_off_max;
-#ifdef DEBUG_INTELLI_PLUG
+
 			pr_info("cpuinfo max is (on): %u %u\n",
 				policy->cpuinfo.max_freq, l_ip_info->sys_max);
-#endif
+
 		} else {
 			/* restore */
 			if (cpu != 0) {
@@ -363,10 +364,10 @@ static void screen_off_limit(bool on)
 			}
 			policy->cpuinfo.max_freq = l_ip_info->sys_max;
 			policy->max = l_ip_info->cur_max;
-#ifdef DEBUG_INTELLI_PLUG
+
 			pr_info("cpuinfo max is (off): %u %u\n",
 				policy->cpuinfo.max_freq, l_ip_info->sys_max);
-#endif
+
 		}
 		cpufreq_update_policy(cpu);
 	}
@@ -532,9 +533,10 @@ static struct input_handler intelli_plug_input_handler = {
 int __init intelli_plug_init(void)
 {
 	int rc;
-#if defined (CONFIG_POWERSUSPEND) || defined(CONFIG_HAS_EARLYSUSPEND)
+#if defined (CONFIG_POWERSUSPEND) || defined(CONFIG_HAS_EARLYSUSPEND)	
 	struct cpufreq_policy *policy;
 	struct ip_cpu_info *l_ip_info;
+	pr_info("Powersuspend Found\n");
 #endif
 
 	nr_possible_cores = num_possible_cpus();
